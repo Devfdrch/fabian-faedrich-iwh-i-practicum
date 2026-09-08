@@ -10,11 +10,13 @@ const app = express();
 // * Please DO NOT INCLUDE the private app access token in your repo. Don't do this practicum in your normal account.
 const PRIVATE_APP_ACCESS = process.env.TOKEN;
 
+// Custom Object "favorite dish" - objectTypeId waere alternativ 2-253053850
+const DISH_OBJECT = 'p149282636_favorite_dishs';
+
 // TODO: ROUTE 1 - Create a new app.get route for the homepage to call your custom object data. Pass this data along to the front-end and create a new pug template in the views folder.
 
 app.get('/', async (req, res) => {
-        const dishes = 'https://api.hubspot.com/crm/v3/objects/p149282636_favorite_dishs?idProperty=name';
-        //const contacts = 'https://api.hubspot.com/crm/v3/objects/contacts';
+    const dishes = `https://api.hubapi.com/crm/v3/objects/${DISH_OBJECT}`;
     const headers = {
         Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
         'Content-Type': 'application/json'
@@ -32,16 +34,48 @@ app.get('/', async (req, res) => {
     }
 });
 
+
+
+
 // TODO: ROUTE 2 - Create a new app.get route for the form to create or update new custom object data. Send this data along in the next route.
 
-// * Code for Route 2 goes here
+
+app.get('/update', async (req, res) => {
+    // http://localhost:3040/update?id=449660537018
+    const id = req.query.id;
+
+    const allDishes = `https://api.hubapi.com/crm/v3/objects/${DISH_OBJECT}?properties=name`;
+    const oneDish = `https://api.hubapi.com/crm/v3/objects/${DISH_OBJECT}/${id}?properties=name,calories,healthy`;
+    const headers = {
+        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+        'Content-Type': 'application/json'
+    };
+
+    try {
+        // alle Dishes fuer das Dropdown
+        const listResponse = await axios.get(allDishes, { headers });
+        const dishes = listResponse.data.results;
+
+        // ohne id: leeres Formular fuer einen neuen Dish
+        if (!id) {
+            return res.render('update', { dishes, id, name: '', calories: '' });
+        }
+
+        const response = await axios.get(oneDish, { headers });
+        const data = response.data;
+
+        res.render('update', { dishes, id, name: data.properties.name, calories: data.properties.calories });
+
+    } catch(err) {
+        console.error(err);
+    }
+});
 
 // TODO: ROUTE 3 - Create a new app.post route for the custom objects form to create or update your custom object data. Once executed, redirect the user to the homepage.
 
-// * Code for Route 3 goes here
 
 
-//* * This is sample code to give you a reference for how you should structure your calls. 
+//* * This is sample code to give you a reference for how you should structure your calls.
 
 //* * App.get sample
 

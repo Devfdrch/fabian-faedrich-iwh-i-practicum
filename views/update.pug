@@ -1,0 +1,22 @@
+doctype html
+html(lang="en")
+    head
+        title Update dish info
+        link(rel="stylesheet", href="/css/style.css")
+    body
+        .form-wrapper
+            form(method="GET" action="/update")
+                label(for="id") select Dish
+                select(name="id" id="id")
+                    each dish in dishes
+                        option(value=dish.id selected=(dish.id === id)) #{dish.properties.name}
+                input(type="submit" value="Laden")
+
+            a(href="/update") Create new
+
+            p Dish: #{name}
+            p Calories: #{calories}
+            form(method="POST")
+                label(for="newVal") update calories
+                input(type="text" name="newVal" required)
+                input(type="submit" value="Submit")
