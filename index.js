@@ -10,7 +10,6 @@ const app = express();
 // * Please DO NOT INCLUDE the private app access token in your repo. Don't do this practicum in your normal account.
 const PRIVATE_APP_ACCESS = process.env.TOKEN;
 
-// Custom Object "favorite dish" - objectTypeId waere alternativ 2-253053850
 const DISH_OBJECT = 'p149282636_favorite_dishs';
 
 // TODO: ROUTE 1 - Create a new app.get route for the homepage to call your custom object data. Pass this data along to the front-end and create a new pug template in the views folder.
@@ -52,19 +51,17 @@ app.get('/update', async (req, res) => {
     };
 
     try {
-        // alle Dishes fuer das Dropdown
         const listResponse = await axios.get(allDishes, { headers });
         const dishes = listResponse.data.results;
 
-        // ohne id: leeres Formular fuer einen neuen Dish
         if (!id) {
-            return res.render('update', { dishes, id, name: '', calories: '' });
+            return res.render('update', { dishes, id, name: '', calories: '', healthy: '' });
         }
 
         const response = await axios.get(oneDish, { headers });
         const data = response.data;
 
-        res.render('update', { dishes, id, name: data.properties.name, calories: data.properties.calories });
+        res.render('update', { dishes, id, name: data.properties.name, calories: data.properties.calories, healthy: data.properties.healthy });
 
     } catch(err) {
         console.error(err);
@@ -73,38 +70,37 @@ app.get('/update', async (req, res) => {
 
 // TODO: ROUTE 3 - Create a new app.post route for the custom objects form to create or update your custom object data. Once executed, redirect the user to the homepage.
 
-
-
-//* * This is sample code to give you a reference for how you should structure your calls.
-
-//* * App.get sample
-
-
-/** 
-* * App.post sample
 app.post('/update', async (req, res) => {
+    const id = req.query.id;
+
     const update = {
         properties: {
-            "favorite_book": req.body.newVal
+            "name": req.body.name,
+            "calories": Number(req.body.calories),
+            "healthy": req.body.healthy ? "true" : "false"
         }
     }
 
-    const email = req.query.email;
-    const updateContact = `https://api.hubapi.com/crm/v3/objects/contacts/${email}?idProperty=email`;
+    const createDish = `https://api.hubapi.com/crm/v3/objects/${DISH_OBJECT}`;
+    const updateDish = `https://api.hubapi.com/crm/v3/objects/${DISH_OBJECT}/${id}`;
     const headers = {
         Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
         'Content-Type': 'application/json'
     };
 
-    try { 
-        await axios.patch(updateContact, update, { headers } );
-        res.redirect('back');
+    try {
+        if (id) {
+            await axios.patch(updateDish, update, { headers } );
+        } else {
+            await axios.post(createDish, update, { headers } );
+        }
+        res.redirect('/');
     } catch(err) {
         console.error(err);
     }
 
 });
-*/
+
 
 
 // * Localhost

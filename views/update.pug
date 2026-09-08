@@ -5,18 +5,45 @@ html(lang="en")
         link(rel="stylesheet", href="/css/style.css")
     body
         .form-wrapper
-            form(method="GET" action="/update")
+            form(method="GET" action="/update" id="selectForm")
                 label(for="id") select Dish
                 select(name="id" id="id")
                     each dish in dishes
                         option(value=dish.id selected=(dish.id === id)) #{dish.properties.name}
                 input(type="submit" value="Laden")
 
-            a(href="/update") Create new
+            form(method="POST" id="dishForm" action=id ? "/update?id=" + id : "/update")
+                label(for="calories") Calories
+                input(type="number" name="calories" id="calories" value=calories required)
 
-            p Dish: #{name}
-            p Calories: #{calories}
-            form(method="POST")
-                label(for="newVal") update calories
-                input(type="text" name="newVal" required)
+                #newFields(hidden=Boolean(id))
+                    label(for="name") Name
+                    input(type="text" name="name" id="name" value=name)
+                    label(for="healthy") Healthy
+                    input(type="checkbox" name="healthy" id="healthy" checked=(healthy === 'true'))
+
                 input(type="submit" value="Submit")
+                button(type="button" id="toggleNew") Create new
+
+        script.
+            var form = document.getElementById('dishForm');
+            var fields = document.getElementById('newFields');
+            var nameInput = document.getElementById('name');
+            var selectForm = document.getElementById('selectForm');
+            var toggle = document.getElementById('toggleNew');
+            var updateAction = form.action;
+
+            function applyMode() {
+                var creating = !fields.hidden;
+                nameInput.required = creating;
+                form.action = creating ? '/update' : updateAction;
+                selectForm.hidden = creating;
+                toggle.textContent = creating ? 'Update' : 'Create new';
+            }
+
+            toggle.addEventListener('click', function () {
+                fields.hidden = !fields.hidden;
+                applyMode();
+            });
+
+            applyMode();
