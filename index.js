@@ -25,8 +25,8 @@ app.get('/', async (req, res) => {
         params: { properties: 'name,calories,healthy' }
     });
         const data = resp.data.results;
-        //res.render('contacts', { title: 'Contacts | HubSpot APIs', data }); 
-        res.json(data)     
+        res.render('dishes', { title: 'Favorite Dish | HubSpot APIs', data }); 
+        //res.json(data)     
     } catch (error) {
         console.error(error);
     }
